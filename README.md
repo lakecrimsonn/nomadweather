@@ -297,7 +297,7 @@ import {
 import * as Location from "expo-location";
 
 const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get("window");
-const weatherAPI = "e89c1a32ae40770800af7a1119dfe9de";
+const weatherAPI = "####";
 
 export default function App() {
   const [city, setCity] = useState("Loading...");
