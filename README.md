@@ -1,5 +1,7 @@
 # 날씨앱
 
+<img src="weatherapp.jpg" width="20%" height="20%">
+
 <aside>
 😆 배움은 언제나 즐거워
 
@@ -45,6 +47,373 @@ export default function App() {
     </View>
   );
 }
+```
+
+# 2.5 styles
+
+```jsx
+import React from "react";
+import { View, Text, StyleSheet } from "react-native";
+
+export default function App() {
+  return (
+    <View style={styles.container}>
+      <View style={styles.city}>
+        <Text style={styles.cityName}>Seoul</Text>
+      </View>
+      <View style={styles.weather}>
+        <View style={styles.day}>
+          <Text style={styles.temp}>27</Text>
+          <Text style={styles.description}>Sunny</Text>
+        </View>
+      </View>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "tomato",
+  },
+  city: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  cityName: {
+    fontSize: 48,
+    fontWeight: "500",
+  },
+  weather: {
+    flex: 3,
+  },
+  day: {
+    flex: 1,
+    alignItems: "center",
+    backgroundColor: "teal",
+  },
+  temp: {
+    marginTop: 50,
+    fontSize: 158,
+  },
+  description: {
+    marginTop: -30,
+    fontSize: 58,
+  },
+});
+```
+
+# 2.6 styles part two
+
+- 뷰는 스크롤이 되지 않는다. ScrollView를 이용해보자. prop으로 horizontal를 주면 횡스크롤을 할 수 있으나, 문제가 생길거다. contentContainerStyle를 이용하면 된다.
+- 핸드폰을 양옆으로 쉐이킹 하면 메뉴를 볼 수 있다. 메뉴의 제일 하단에 인스펙터가 있는데, 인스펙터로 화면의 구성요소를 파악하자.
+- Dimenstion으로 화면의 전체 크기를 알 수 있다.
+- pagingEnabled prop은 컴포넌트를 완전히 넘겨야 전환이 된다.
+
+```jsx
+import React from "react";
+import { View, ScrollView, Text, StyleSheet, Dimensions } from "react-native";
+
+const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get("window");
+
+export default function App() {
+  return (
+    <View style={styles.container}>
+      <View style={styles.city}>
+        <Text style={styles.cityName}>Seoul</Text>
+      </View>
+      <ScrollView
+        pagingEnabled
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.weather}
+      >
+        <View style={styles.day}>
+          <Text style={styles.temp}>27</Text>
+          <Text style={styles.description}>Sunny</Text>
+        </View>
+        <View style={styles.day}>
+          <Text style={styles.temp}>27</Text>
+          <Text style={styles.description}>Sunny</Text>
+        </View>
+        <View style={styles.day}>
+          <Text style={styles.temp}>27</Text>
+          <Text style={styles.description}>Sunny</Text>
+        </View>
+        <View style={styles.day}>
+          <Text style={styles.temp}>27</Text>
+          <Text style={styles.description}>Sunny</Text>
+        </View>
+      </ScrollView>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "tomato",
+  },
+  city: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  cityName: {
+    fontSize: 48,
+    fontWeight: "500",
+  },
+  weather: {},
+  day: {
+    width: SCREEN_WIDTH,
+    alignItems: "center",
+  },
+  temp: {
+    marginTop: 50,
+    fontSize: 158,
+  },
+  description: {
+    marginTop: -30,
+    fontSize: 58,
+  },
+});
+```
+
+# 2.7 location
+
+- expo install expo-location
+
+```jsx
+import React, { useEffect, useState } from "react";
+import { View, ScrollView, Text, StyleSheet, Dimensions } from "react-native";
+import * as Location from "expo-location";
+
+const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get("window");
+
+export default function App() {
+  const [city, setCity] = useState("Loading...");
+  const [ok, setOk] = useState(true);
+
+  const getWeather = async () => {
+    const { granted } = await Location.requestForegroundPermissionsAsync();
+
+    if (!granted) {
+      setOk(false);
+    }
+
+    const {
+      coords: { latitude, longitude },
+    } = await Location.getCurrentPositionAsync({ accuracy: 5 });
+
+    const getLocation = await Location.reverseGeocodeAsync(
+      { latitude, longitude },
+      { useGoogleMaps: false }
+    );
+
+    setCity(getLocation[0].city);
+  };
+
+  useEffect(() => {
+    getWeather();
+  }, []);
+
+  return (
+    <View style={styles.container}>
+      <View style={styles.city}>
+        <Text style={styles.cityName}>{city}</Text>
+      </View>
+      <ScrollView
+        pagingEnabled
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.weather}
+      >
+        <View style={styles.day}>
+          <Text style={styles.temp}>27</Text>
+          <Text style={styles.description}>Sunny</Text>
+        </View>
+        <View style={styles.day}>
+          <Text style={styles.temp}>27</Text>
+          <Text style={styles.description}>Sunny</Text>
+        </View>
+        <View style={styles.day}>
+          <Text style={styles.temp}>27</Text>
+          <Text style={styles.description}>Sunny</Text>
+        </View>
+        <View style={styles.day}>
+          <Text style={styles.temp}>27</Text>
+          <Text style={styles.description}>Sunny</Text>
+        </View>
+      </ScrollView>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "tomato",
+  },
+  city: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  cityName: {
+    fontSize: 48,
+    fontWeight: "500",
+  },
+  weather: {},
+  day: {
+    width: SCREEN_WIDTH,
+    alignItems: "center",
+  },
+  temp: {
+    marginTop: 50,
+    fontSize: 158,
+  },
+  description: {
+    marginTop: -30,
+    fontSize: 58,
+  },
+});
+```
+
+# 2.8 weather
+
+- https://[openweathermap.org/api](http://openweathermap.org/api) 에서 날씨정보를 가져온다. 회원가입을 하고 api키를 가져오자.
+
+```jsx
+import React, { useEffect, useState } from "react";
+import {
+  View,
+  ScrollView,
+  Text,
+  StyleSheet,
+  Dimensions,
+  ActivityIndicator,
+} from "react-native";
+import * as Location from "expo-location";
+
+const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get("window");
+const weatherAPI = "e89c1a32ae40770800af7a1119dfe9de";
+
+export default function App() {
+  const [city, setCity] = useState("Loading...");
+  const [ok, setOk] = useState(true);
+  const [days, setDays] = useState([]);
+
+  const getWeather = async () => {
+    const { granted } = await Location.requestForegroundPermissionsAsync();
+
+    if (!granted) {
+      setOk(false);
+    }
+
+    const {
+      coords: { latitude, longitude },
+    } = await Location.getCurrentPositionAsync({ accuracy: 5 });
+
+    const getLocation = await Location.reverseGeocodeAsync(
+      { latitude, longitude },
+      { useGoogleMaps: false }
+    );
+
+    setCity(getLocation[0].city);
+
+    const response = await fetch(
+      `https://api.openweathermap.org/data/3.0/onecall?lat=${latitude}&lon=${longitude}&exclude={alerts}&appid=${weatherAPI}&units=metric`
+    );
+    const json = await response.json();
+    setDays(json.daily);
+  };
+
+  useEffect(() => {
+    getWeather();
+  }, []);
+
+  return (
+    <View style={styles.container}>
+      <View style={styles.city}>
+        <Text style={styles.cityName}>{city}</Text>
+      </View>
+      <ScrollView
+        pagingEnabled
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.weather}
+      >
+        {days.length === 0 ? (
+          <View style={styles.day}>
+            <ActivityIndicator
+              color={"white"}
+              size={"large"}
+              style={{ marginTop: 10 }}
+            />
+          </View>
+        ) : (
+          days.map((day, index) => (
+            <View key={index} style={styles.day}>
+              <Text style={styles.temp}>
+                {parseFloat(day.temp.day).toFixed(1)}
+              </Text>
+              <Text style={styles.description}>{day.weather[0].main}</Text>
+              <Text style={styles.tiny_description}>
+                {day.weather[0].description}
+              </Text>
+            </View>
+          ))
+        )}
+      </ScrollView>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#B5D692",
+  },
+  city: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  cityName: {
+    fontSize: 48,
+    fontWeight: "500",
+  },
+  weather: {},
+  day: {
+    width: SCREEN_WIDTH,
+    alignItems: "center",
+  },
+  temp: {
+    marginTop: 50,
+    fontSize: 108,
+  },
+  description: {
+    marginTop: -30,
+    fontSize: 58,
+  },
+  tiny_description: {
+    fontSize: 28,
+  },
+});
+```
+
+# 2.9 recap
+
+# 2.10 icons
+
+- https://icons.expo.fyi 여러 아이콘을 확인할 수 있다. `expo init` 을 이용해서 앱설정을 했다면 아이콘을 쉽게 가져다 사용할 수 있다.
+- 기존의 스타일 가져오면서 특정 태그에 커스터마이즈하기
+
+```jsx
+<View style={{ ...styles.day, alignItems: "center" }}>
+  <ActivityIndicator color={"white"} size={"large"} style={{ marginTop: 10 }} />
+</View>
 ```
 
 </aside>
